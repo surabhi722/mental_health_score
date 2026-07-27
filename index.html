@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orbit — how your day adds up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+/* ================= Tokens ================= */
+:root{
+  --violet:    #7C3AED;
+  --violet-lt: #A78BFA;
+  --magenta:   #EC4899;
+  --tangerine: #FB923C;
+  --emerald:   #10B981;
+  --cyan:      #22D3EE;
+
+  --ink:   #1B1730;
+  --paper: #FFFFFF;
+  --mist:  #7A759C;
+  --line:  #E7E2FA;
+  --canvas:#F6F3FF;
+
+  --display: 'Fraunces', serif;
+  --body:    'Inter', system-ui, sans-serif;
+  --mono:    'IBM Plex Mono', monospace;
+
+  --radius: 16px;
+  --radius-lg: 26px;
+}
+
+*{ box-sizing: border-box; }
+html{ scroll-behavior: smooth; }
+
+body{
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ===== Signature: living aurora backdrop ===== */
+.aurora{
+  position: fixed; inset: -20%; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(38% 32% at 12% 18%, rgba(124,58,237,.35), transparent 70%),
+    radial-gradient(34% 30% at 88% 12%, rgba(236,72,153,.30), transparent 70%),
+    radial-gradient(40% 36% at 78% 82%, rgba(251,146,60,.28), transparent 70%),
+    radial-gradient(30% 28% at 15% 85%, rgba(16,185,129,.28), transparent 70%);
+  filter: blur(40px) saturate(1.2);
+  animation: drift 22s ease-in-out infinite alternate;
+}
+@keyframes drift{
+  0%{ transform: translate(0,0) rotate(0deg) scale(1); }
+  100%{ transform: translate(-2%, 3%) rotate(6deg) scale(1.08); }
+}
+.grain{
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  opacity: .04; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+main, header, footer{ position: relative; z-index: 1; }
+
+/* ================= Header ================= */
+.site-head{
+  display: flex; align-items: baseline; gap: 14px;
+  padding: 28px clamp(20px, 6vw, 64px) 0;
+}
+.wordmark{
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, var(--violet), var(--magenta));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.tagline{
+  font-family: var(--mono);
+  font-size: .72rem;
+  color: var(--mist);
+  letter-spacing: .02em;
+}
+
+/* ================= Hero ================= */
+.hero{
+  display: grid;
+  grid-template-columns: 1.1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: clamp(24px, 5vw, 72px);
+  align-items: center;
+  padding: clamp(28px, 5vw, 56px) clamp(20px, 6vw, 64px) 44px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.hero-copy{ grid-column: 1; grid-row: 1; }
+.ring-wrap{ grid-column: 2; grid-row: 1 / span 2; justify-self: center; }
+.ring-key{ grid-column: 1; grid-row: 2; }
+
+.eyebrow{
+  font-family: var(--mono);
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--violet);
+  margin: 0 0 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.eyebrow::before{
+  content: ""; width: 18px; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--violet), var(--magenta));
+}
+h1{
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(2.3rem, 5vw, 3.6rem);
+  line-height: 1.03;
+  letter-spacing: -0.01em;
+  margin: 0 0 18px;
+}
+h1 .grad{
+  background: linear-gradient(100deg, var(--violet) 10%, var(--magenta) 45%, var(--tangerine) 80%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.lede{
+  max-width: 46ch;
+  color: #4A456B;
+  font-size: 1.04rem;
+  margin: 0;
+}
+
+/* ===== Day ring ===== */
+.ring-wrap{ position: relative; width: min(300px, 44vw); }
+.ring-glow{
+  position: absolute; inset: 8%; border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--violet), var(--magenta), var(--tangerine), var(--emerald), var(--violet));
+  filter: blur(28px); opacity: .35;
+  animation: spin 14s linear infinite;
+}
+@keyframes spin{ to{ transform: rotate(360deg); } }
+.day-ring{ position: relative; width: 100%; height: auto; display: block; }
+.ring-track{ fill: none; stroke: var(--paper); stroke-width: 14; }
+.ring-seg{
+  fill: none; stroke-width: 14; stroke-linecap: round;
+  transform-origin: 100px 100px;
+  transition: stroke-dasharray .5s cubic-bezier(.4,0,.2,1), stroke-dashoffset .5s cubic-bezier(.4,0,.2,1);
+}
+.seg-sleep{ stroke: var(--violet); filter: drop-shadow(0 0 6px rgba(124,58,237,.5)); }
+.seg-study{ stroke: var(--tangerine); filter: drop-shadow(0 0 6px rgba(251,146,60,.5)); }
+.seg-active{ stroke: var(--emerald); filter: drop-shadow(0 0 6px rgba(16,185,129,.5)); }
+.seg-screen{ stroke: var(--magenta); filter: drop-shadow(0 0 6px rgba(236,72,153,.5)); }
+
+.ring-center{
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.ring-number{
+  font-family: var(--mono); font-weight: 600;
+  font-size: clamp(1.9rem, 4vw, 2.5rem);
+  line-height: 1;
+  background: linear-gradient(90deg, var(--violet), var(--magenta));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.ring-label{ font-size: .68rem; color: var(--mist); letter-spacing: .04em; margin-top: 4px; }
+
+.ring-key{
+  list-style: none; margin: 24px 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 10px 18px;
+}
+.ring-key li{
+  font-size: .82rem; color: var(--ink);
+  display: flex; align-items: center; gap: 7px;
+  background: var(--paper);
+  padding: 6px 12px 6px 8px;
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(27,23,48,.06);
+}
+.ring-key b{ font-family: var(--mono); font-weight: 600; color: var(--mist); font-size: .78rem; }
+.ring-key i{ width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.ring-key li[data-key="sleep"] i{ background: var(--violet); }
+.ring-key li[data-key="study"] i{ background: var(--tangerine); }
+.ring-key li[data-key="active"] i{ background: var(--emerald); }
+.ring-key li[data-key="screen"] i{ background: var(--magenta); }
+.ring-key li[data-key="free"] i{ background: var(--paper); border: 1.5px solid var(--line); }
+
+/* ===== Smart insight chips ===== */
+.insights{
+  grid-column: 1; grid-row: 3;
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;
+  min-height: 30px;
+}
+.chip{
+  font-family: var(--mono); font-size: .74rem; font-weight: 500;
+  padding: 6px 12px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 6px;
+  animation: pop .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes pop{ from{ transform: scale(.7); opacity: 0;} to{ transform: scale(1); opacity: 1;} }
+.chip.good{ background: rgba(16,185,129,.14); color: #0B7A55; }
+.chip.warn{ background: rgba(236,72,153,.14); color: #A81F63; }
+.chip.info{ background: rgba(124,58,237,.12); color: #5B21B6; }
+
+/* ================= Form ================= */
+form{
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 clamp(20px, 6vw, 64px) 40px;
+}
+
+.field-group{
+  background: var(--paper);
+  border-radius: var(--radius-lg);
+  padding: clamp(20px, 3vw, 32px);
+  margin-bottom: 20px;
+  box-shadow: 0 1px 2px rgba(27,23,48,.05), 0 12px 30px -20px rgba(124,58,237,.25);
+  border: 1px solid rgba(124,58,237,.06);
+}
+
+.grid{ display: grid; gap: 18px; }
+.grid-2{ grid-template-columns: repeat(2, 1fr); }
+.grid-3{ grid-template-columns: repeat(3, 1fr); }
+.span-3{ grid-column: 1 / -1; }
+
+.field{
+  display: flex; flex-direction: column; gap: 8px;
+  font-size: .84rem; font-weight: 600; color: #4A456B;
+}
+
+select, .unit-input, input[type="text"]{
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--canvas);
+  font-family: var(--body);
+  font-size: .95rem;
+  color: var(--ink);
+  transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+
+select, input[type="text"]{ padding: 11px 14px; }
+
+.unit-input{
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px;
+}
+.unit-input input{
+  border: none; background: transparent; font-family: var(--mono);
+  font-size: .95rem; color: var(--ink); width: 100%; padding: 11px 0;
+}
+.unit-input input:focus{ outline: none; }
+.unit-input em{ font-style: normal; color: var(--mist); font-size: .76rem; white-space: nowrap; }
+
+select:focus-visible, input:focus-visible, .unit-input:focus-within{
+  border-color: var(--violet);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(124,58,237,.12);
+  outline: none;
+}
+
+.hint{
+  margin: 14px 0 0; font-size: .82rem; color: var(--magenta);
+  font-family: var(--mono);
+}
+
+/* ================= Submit ================= */
+.submit-row{ display: flex; align-items: center; gap: 16px; padding-top: 6px; }
+
+button#submitBtn{
+  position: relative; overflow: hidden;
+  display: inline-flex; align-items: center; gap: 10px;
+  background: linear-gradient(100deg, var(--violet), var(--magenta) 60%, var(--tangerine));
+  background-size: 200% 100%;
+  color: #fff;
+  border: none; border-radius: 999px;
+  font-family: var(--body); font-weight: 700; font-size: .95rem;
+  padding: 15px 28px;
+  cursor: pointer;
+  box-shadow: 0 10px 26px -10px rgba(124,58,237,.55);
+  transition: transform .15s ease, background-position .5s ease, box-shadow .15s ease;
+}
+button#submitBtn:hover{ background-position: 100% 0; box-shadow: 0 14px 30px -10px rgba(236,72,153,.55); }
+button#submitBtn:active{ transform: scale(.97); }
+button#submitBtn:disabled{ opacity: .6; cursor: wait; }
+button#submitBtn svg{ transition: transform .15s ease; }
+button#submitBtn:hover svg{ transform: translateX(3px); }
+
+.api-status{ font-family: var(--mono); font-size: .8rem; color: var(--mist); margin: 0; }
+.api-status.is-error{ color: var(--magenta); }
+
+/* ================= Result ================= */
+.result{
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 clamp(20px, 6vw, 64px) 80px;
+  animation: rise .5s cubic-bezier(.4,0,.2,1);
+}
+@keyframes rise{ from{ opacity: 0; transform: translateY(14px);} to{ opacity: 1; transform: translateY(0);} }
+
+.result-card{
+  position: relative; overflow: hidden;
+  background: linear-gradient(135deg, var(--ink), #2E2154 60%, #3A1E4D);
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: clamp(28px, 4vw, 44px);
+}
+.result-card::before{
+  content:""; position: absolute; top: -60%; right: -20%; width: 60%; height: 160%;
+  background: conic-gradient(from 90deg, var(--violet), var(--magenta), var(--tangerine), transparent 70%);
+  opacity: .25; filter: blur(50px);
+}
+.result-body{
+  position: relative;
+  display: flex; align-items: center; gap: clamp(24px, 5vw, 56px);
+  flex-wrap: wrap;
+}
+
+.score-ring-wrap{ position: relative; width: min(220px, 46vw); flex-shrink: 0; }
+.score-ring{ width: 100%; height: auto; display: block; }
+.score-track{ fill: none; stroke: rgba(255,255,255,.10); stroke-width: 14; }
+.score-arc{
+  fill: none; stroke-width: 14; stroke-linecap: round;
+  transform-origin: 100px 100px; transform: rotate(-90deg);
+  transition: stroke-dasharray .8s cubic-bezier(.34,1.2,.64,1);
+  filter: drop-shadow(0 0 10px rgba(236,72,153,.45));
+}
+.score-center{
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.result-number{
+  font-family: var(--display); font-weight: 600;
+  font-size: clamp(2.2rem, 6vw, 3rem);
+  line-height: 1; display: flex; align-items: baseline; gap: 5px;
+  background: linear-gradient(90deg, #fff, var(--cyan) 60%, var(--tangerine));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.result-number .scale{ font-family: var(--mono); font-size: .95rem; color: rgba(255,255,255,.55); -webkit-background-clip: initial; background-clip: initial; -webkit-text-fill-color: rgba(255,255,255,.55); }
+.band-label{
+  margin-top: 8px; font-family: var(--mono); font-size: .74rem;
+  text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.6);
+}
+.result-note{
+  position: relative;
+  margin: 0; font-size: 1.02rem; max-width: 46ch; color: rgba(255,255,255,.85);
+  flex: 1; min-width: 240px;
+}
+.disclaimer{
+  font-size: .78rem; color: var(--mist); max-width: 70ch;
+  margin: 16px 0 0;
+}
+
+/* ================= Footer ================= */
+.site-foot{
+  padding: 20px clamp(20px, 6vw, 64px) 32px;
+  font-family: var(--mono); font-size: .72rem; color: var(--mist);
+}
+
+/* ================= Responsive ================= */
+@media (max-width: 820px){
+  .hero{ grid-template-columns: 1fr; grid-template-rows: auto auto auto auto; }
+  .ring-wrap{ grid-column: 1; grid-row: 2; justify-self: start; width: min(230px, 60vw); margin-top: 24px; }
+  .ring-key{ grid-column: 1; grid-row: 3; }
+  .insights{ grid-row: 4; }
+  .grid-2, .grid-3{ grid-template-columns: 1fr; }
+  .span-3{ grid-column: 1; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="aurora" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="site-head">
+  <span class="wordmark">Orbit</span>
+  <span class="tagline">a 24&#8209;hour model of student wellbeing</span>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">01 — Before you begin</p>
+      <h1>Every day is<br><span class="grad">only 24 hours.</span></h1>
+      <p class="lede">Sleep, study, movement, and your phone are all competing for the same ring. Fill in the form and watch it fill in real time — then we'll estimate what that balance means for your mental health score.</p>
+    </div>
+
+    <div class="ring-wrap">
+      <div class="ring-glow" aria-hidden="true"></div>
+      <svg class="day-ring" viewBox="0 0 200 200" role="img" aria-label="Visual breakdown of your 24-hour day">
+        <circle class="ring-track" cx="100" cy="100" r="86"></circle>
+        <circle id="segSleep"  class="ring-seg seg-sleep"  cx="100" cy="100" r="86"></circle>
+        <circle id="segStudy"  class="ring-seg seg-study"  cx="100" cy="100" r="86"></circle>
+        <circle id="segActive" class="ring-seg seg-active" cx="100" cy="100" r="86"></circle>
+        <circle id="segScreen" class="ring-seg seg-screen" cx="100" cy="100" r="86"></circle>
+      </svg>
+      <div class="ring-center">
+        <span class="ring-number" id="ringHours">0</span>
+        <span class="ring-label">hrs mapped</span>
+      </div>
+    </div>
+
+    <ul class="ring-key" id="ringKey">
+      <li data-key="sleep"><i></i>Sleep <b id="kvSleep">0h</b></li>
+      <li data-key="study"><i></i>Study <b id="kvStudy">0h</b></li>
+      <li data-key="active"><i></i>Movement <b id="kvActive">0h</b></li>
+      <li data-key="screen"><i></i>Screen <b id="kvScreen">0h</b></li>
+      <li data-key="free"><i></i>Unmapped <b id="kvFree">24h</b></li>
+    </ul>
+
+    <div class="insights" id="insights" aria-live="polite"></div>
+  </section>
+
+  <!-- FORM -->
+  <form id="predictForm" novalidate>
+
+    <section class="field-group" aria-labelledby="grp-day">
+      <p class="eyebrow" id="grp-day">02 — How you spend your day</p>
+      <div class="grid grid-2">
+        <label class="field">
+          <span>Sleep per night</span>
+          <div class="unit-input">
+            <input type="number" id="sleep_hours_per_night" name="sleep_hours_per_night" min="0" max="24" step="0.25" required>
+            <em>hrs</em>
+          </div>
+        </label>
+        <label class="field">
+          <span>Study hours</span>
+          <div class="unit-input">
+            <input type="number" id="study_hours" name="study_hours" min="0" max="24" step="0.25" required>
+            <em>hrs</em>
+          </div>
+        </label>
+        <label class="field">
+          <span>Physical activity</span>
+          <div class="unit-input">
+            <input type="number" id="physical_activity_hours" name="physical_activity_hours" min="0" max="24" step="0.25" required>
+            <em>hrs</em>
+          </div>
+        </label>
+        <label class="field">
+          <span>Screen time (social media)</span>
+          <div class="unit-input">
+            <input type="number" id="avg_daily_usage_hours" name="avg_daily_usage_hours" min="0" max="24" step="0.25" required>
+            <em>hrs</em>
+          </div>
+        </label>
+      </div>
+      <p class="hint" id="overflowHint" hidden>That's more than 24 hours mapped — double check the numbers above.</p>
+    </section>
+
+    <section class="field-group" aria-labelledby="grp-digital">
+      <p class="eyebrow" id="grp-digital">03 — Your digital life</p>
+      <div class="grid grid-2">
+        <label class="field">
+          <span>Most used platform</span>
+          <select id="most_used_platform" name="most_used_platform" required>
+            <option value="" disabled selected>Choose one</option>
+            <option>Instagram</option>
+            <option>TikTok</option>
+            <option>YouTube</option>
+            <option>WhatsApp</option>
+            <option>Facebook</option>
+            <option>Snapchat</option>
+            <option>Twitter</option>
+            <option>LinkedIn</option>
+            <option>WeChat</option>
+            <option>LINE</option>
+            <option>KakaoTalk</option>
+            <option>VKontakte</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Main purpose of use</span>
+          <select id="purpose_of_use" name="purpose_of_use" required>
+            <option value="" disabled selected>Choose one</option>
+            <option>Networking</option>
+            <option>Education</option>
+            <option>Entertainment</option>
+            <option>News</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Daily phone unlocks</span>
+          <div class="unit-input">
+            <input type="number" id="daily_unlocks" name="daily_unlocks" min="0" step="1" required>
+            <em>unlocks</em>
+          </div>
+        </label>
+        <label class="field">
+          <span>Stress level</span>
+          <select id="stress_level" name="stress_level" required>
+            <option value="" disabled selected>Choose one</option>
+            <option>Low</option>
+            <option>Medium</option>
+            <option>High</option>
+            <option>Very High</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="field-group" aria-labelledby="grp-about">
+      <p class="eyebrow" id="grp-about">04 — About you</p>
+      <div class="grid grid-3">
+        <label class="field">
+          <span>Age</span>
+          <div class="unit-input">
+            <input type="number" id="age" name="age" min="10" max="100" step="1" required>
+            <em>yrs</em>
+          </div>
+        </label>
+        <label class="field">
+          <span>Gender</span>
+          <select id="gender" name="gender" required>
+            <option value="" disabled selected>Choose one</option>
+            <option>Female</option>
+            <option>Male</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Academic level</span>
+          <select id="academic_level" name="academic_level" required>
+            <option value="" disabled selected>Choose one</option>
+            <option>High School</option>
+            <option>Undergraduate</option>
+            <option>Graduate</option>
+          </select>
+        </label>
+        <label class="field span-3">
+          <span>Country</span>
+          <select id="country_select" required>
+            <option value="" disabled selected>Choose one</option>
+            <option>India</option>
+            <option>USA</option>
+            <option>UK</option>
+            <option>Canada</option>
+            <option>Australia</option>
+            <option>Germany</option>
+            <option>Mexico</option>
+            <option>Turkey</option>
+            <option>France</option>
+            <option value="__other">Other — type it in</option>
+          </select>
+          <input type="text" id="country_other" name="country" placeholder="Type your country" hidden>
+        </label>
+      </div>
+    </section>
+
+    <section class="submit-row">
+      <button type="submit" id="submitBtn">
+        <span>Predict my score</span>
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4 9h10M9 4l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <p class="api-status" id="apiStatus"></p>
+    </section>
+
+  </form>
+
+  <!-- RESULT -->
+  <section class="result" id="resultSection" hidden aria-live="polite">
+    <p class="eyebrow">05 — Your estimate</p>
+    <div class="result-card">
+      <div class="result-body">
+        <div class="score-ring-wrap">
+          <svg class="score-ring" viewBox="0 0 200 200" role="img" aria-label="Predicted mental health score out of 10">
+            <defs>
+              <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#EC4899"></stop>
+                <stop offset="50%" stop-color="#FB923C"></stop>
+                <stop offset="100%" stop-color="#10B981"></stop>
+              </linearGradient>
+            </defs>
+            <circle class="score-track" cx="100" cy="100" r="86"></circle>
+            <circle id="scoreArc" class="score-arc" cx="100" cy="100" r="86" stroke="url(#scoreGrad)"></circle>
+          </svg>
+          <div class="score-center">
+            <div class="result-number">
+              <span id="resultScore">0.0</span>
+              <span class="scale">/ 10</span>
+            </div>
+            <span class="band-label" id="bandLabel"></span>
+          </div>
+        </div>
+        <p class="result-note" id="resultNote"></p>
+      </div>
+    </div>
+    <p class="disclaimer">This is a machine-learning estimate from a coursework model, built on patterns in a training dataset — not a clinical or diagnostic tool. If you're struggling, please talk to a counselor, doctor, or someone you trust.</p>
+  </section>
+
+</main>
+
+<footer class="site-foot">
+  <span>student wellbeing model</span>
+</footer>
+
+<script>
+// ---------------------------------------------------------------------------
+// Point this at your FastAPI backend. Local dev default shown below —
+// swap for your Render/Vercel URL when you deploy.
+// ---------------------------------------------------------------------------
+const API_URL = "http://localhost:8000/predict";
+
+// ===== Day ring =====================================================
+const RING_RADIUS = 86;
+const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
+const ringInputs = {
+  sleep:  document.getElementById("sleep_hours_per_night"),
+  study:  document.getElementById("study_hours"),
+  active: document.getElementById("physical_activity_hours"),
+  screen: document.getElementById("avg_daily_usage_hours"),
+};
+
+const ringSegEls = {
+  sleep:  document.getElementById("segSleep"),
+  study:  document.getElementById("segStudy"),
+  active: document.getElementById("segActive"),
+  screen: document.getElementById("segScreen"),
+};
+
+const kv = {
+  sleep:  document.getElementById("kvSleep"),
+  study:  document.getElementById("kvStudy"),
+  active: document.getElementById("kvActive"),
+  screen: document.getElementById("kvScreen"),
+  free:   document.getElementById("kvFree"),
+};
+
+const ringHoursEl  = document.getElementById("ringHours");
+const overflowHint = document.getElementById("overflowHint");
+const insightsEl   = document.getElementById("insights");
+const stressSelect = document.getElementById("stress_level");
+
+function readHours() {
+  const out = {};
+  for (const key in ringInputs) {
+    const v = parseFloat(ringInputs[key].value);
+    out[key] = isNaN(v) ? 0 : Math.max(0, v);
+  }
+  return out;
+}
+
+// Small, transparent client-side nudges — separate from the ML prediction,
+// just a quick read on the numbers as you type.
+function renderInsights(vals, total) {
+  const chips = [];
+  if (vals.sleep > 0 && vals.sleep < 6) chips.push({ t: "warn", txt: "⚠ Sleep under 6h" });
+  if (vals.sleep >= 7 && vals.sleep <= 9) chips.push({ t: "good", txt: "✓ Solid sleep window" });
+  if (vals.screen >= 5 && vals.screen > vals.sleep) chips.push({ t: "warn", txt: "⚠ Screen time tops sleep" });
+  if (vals.active >= 1) chips.push({ t: "good", txt: "✓ Movement logged" });
+  if (vals.active === 0 && total > 0) chips.push({ t: "info", txt: "No movement yet today" });
+  if (total > 24) chips.push({ t: "warn", txt: "⚠ Over 24 hours mapped" });
+
+  insightsEl.innerHTML = chips
+    .slice(0, 4)
+    .map((c) => `<span class="chip ${c.t}">${c.txt}</span>`)
+    .join("");
+}
+
+function updateRing() {
+  const vals = readHours();
+  const total = vals.sleep + vals.study + vals.active + vals.screen;
+  const overflow = total > 24;
+  overflowHint.hidden = !overflow;
+
+  const scale = overflow ? 24 / total : 1;
+
+  let cumulativeDeg = 0;
+  ["sleep", "study", "active", "screen"].forEach((key) => {
+    const drawHours = vals[key] * scale;
+    const len = (drawHours / 24) * CIRCUMFERENCE;
+    const el = ringSegEls[key];
+    el.style.strokeDasharray = `${len} ${CIRCUMFERENCE - len}`;
+    el.style.transform = `rotate(${-90 + cumulativeDeg}deg)`;
+    cumulativeDeg += (drawHours / 24) * 360;
+  });
+
+  kv.sleep.textContent  = `${vals.sleep}h`;
+  kv.study.textContent  = `${vals.study}h`;
+  kv.active.textContent = `${vals.active}h`;
+  kv.screen.textContent = `${vals.screen}h`;
+  kv.free.textContent   = `${Math.max(0, Math.round((24 - total) * 100) / 100)}h`;
+  ringHoursEl.textContent = Math.round(total * 10) / 10;
+
+  renderInsights(vals, total);
+}
+
+Object.values(ringInputs).forEach((input) => input.addEventListener("input", updateRing));
+updateRing();
+
+// ===== Country field (select + "other" fallback) ====================
+const countrySelect = document.getElementById("country_select");
+const countryOther  = document.getElementById("country_other");
+
+countrySelect.addEventListener("change", () => {
+  const isOther = countrySelect.value === "__other";
+  countryOther.hidden = !isOther;
+  countryOther.required = isOther;
+  if (isOther) countryOther.focus();
+});
+
+function resolveCountry() {
+  if (countrySelect.value === "__other") return countryOther.value.trim();
+  return countrySelect.value;
+}
+
+// ===== Form submit → API call =======================================
+const form       = document.getElementById("predictForm");
+const submitBtn  = document.getElementById("submitBtn");
+const apiStatus  = document.getElementById("apiStatus");
+const resultSection = document.getElementById("resultSection");
+const resultScore   = document.getElementById("resultScore");
+const scoreArc      = document.getElementById("scoreArc");
+const bandLabel     = document.getElementById("bandLabel");
+const resultNote    = document.getElementById("resultNote");
+const SCORE_CIRCUMFERENCE = 2 * Math.PI * 86;
+
+const BANDS = [
+  { max: 3,  label: "Struggling", note: "The numbers suggest real strain right now. That's worth taking seriously — a counselor or someone you trust can help more than any model can." },
+  { max: 5,  label: "Strained",   note: "Things look stretched thin. Small shifts in sleep or screen time tend to move this number more than they seem like they should." },
+  { max: 7,  label: "Steady",     note: "A reasonably balanced day. There's room to tune the mix, but nothing here looks alarming." },
+  { max: 10, label: "Thriving",   note: "Your day's balance of sleep, study, movement, and screen time looks healthy by this model's estimate." },
+];
+
+function renderResult(score) {
+  const clamped = Math.max(0, Math.min(10, score));
+  resultScore.textContent = score.toFixed(2);
+  const arcLen = (clamped / 10) * SCORE_CIRCUMFERENCE;
+  scoreArc.style.strokeDasharray = `${arcLen} ${SCORE_CIRCUMFERENCE - arcLen}`;
+  const band = BANDS.find((b) => clamped <= b.max) || BANDS[BANDS.length - 1];
+  bandLabel.textContent = band.label;
+  resultNote.textContent = band.note;
+  resultSection.hidden = false;
+  resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const country = resolveCountry();
+  if (!country) {
+    apiStatus.textContent = "Please choose or enter a country.";
+    apiStatus.classList.add("is-error");
+    return;
+  }
+
+  const payload = {
+    age: parseInt(document.getElementById("age").value, 10),
+    gender: document.getElementById("gender").value,
+    country,
+    academic_level: document.getElementById("academic_level").value,
+    most_used_platform: document.getElementById("most_used_platform").value,
+    purpose_of_use: document.getElementById("purpose_of_use").value,
+    avg_daily_usage_hours: parseFloat(ringInputs.screen.value),
+    daily_unlocks: parseInt(document.getElementById("daily_unlocks").value, 10),
+    study_hours: parseFloat(ringInputs.study.value),
+    physical_activity_hours: parseFloat(ringInputs.active.value),
+    sleep_hours_per_night: parseFloat(ringInputs.sleep.value),
+    stress_level: stressSelect.value,
+  };
+
+  submitBtn.disabled = true;
+  submitBtn.querySelector("span").textContent = "Predicting…";
+  apiStatus.classList.remove("is-error");
+  apiStatus.textContent = "";
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      throw new Error(`Server responded ${res.status}: ${errBody}`);
+    }
+
+    const data = await res.json();
+    renderResult(data.predicted_mental_health_score);
+  } catch (err) {
+    apiStatus.textContent = `Couldn't reach the model — ${err.message}`;
+    apiStatus.classList.add("is-error");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.querySelector("span").textContent = "Predict my score";
+  }
+});
+</script>
+</body>
+</html>
