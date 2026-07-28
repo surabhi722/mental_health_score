@@ -2,7 +2,7 @@
 A machine learning web application that predicts a student's mental health score based on lifestyle and social media usage.
 
 ## Live Demo
-https://mental-health-score-1zngi.onrender.com 
+https://mental-health-score-1-zngi.onrender.com 
 
 ## Features 
     - Predicts mental health score
